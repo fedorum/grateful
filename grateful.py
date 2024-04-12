@@ -10,7 +10,7 @@ file = 'grateful.txt'
 print("Welcome to Grateful!")
 with open(file, 'r') as g:
     lines = g.readlines()
-    print(lines)
+    index = len(lines)
 if lines:
     print("\nHere's something you were grateful for on\n")
     print(random.choice(lines).strip("\n"))
@@ -21,12 +21,15 @@ while True:
 
     # allows user to enter an entry
     if command == "entry":
-        entry = input("What do you feel grateful about today? ")
+        entry = input("\nWhat do you feel grateful about today? ")
         while entry <= "":
-            print("That's not a valid entry! :(")
-            entry = input("Please input something: ")
+            print("That's not a valid entry :(")
+            entry = input("Please input a valid entry or 'return' if you would like to go back: ")
+        if entry.lower() == "return":
+            continue
         with open(file, 'a') as g:
-            g.write("{}: {}\n".format(str(today), str(entry)))
+            index += 1
+            g.write("{}. {}: {}\n".format(index, str(today), str(entry)))
         print('\n' + "New entry created!")
 
     # displays all recorded entries
@@ -43,16 +46,19 @@ while True:
     # allows the user to remove a previously recorded entry
     elif command == "delete":
         delete = input("\nInput the index of the entry you would like to delete (i.e. 5): ")
-        if delete > "          ":
-            with open(file, 'r') as infile, open("temp.txt", 'w') as outfile:
-                for line in infile:
-                    if delete not in line.strip('\n'):
-                        outfile.write(line)
-            os.replace('temp.txt', file)
-            print("\nYou've deleted a record from " + delete + "!")
-        else:
-            print("\nNo records were deleted.")
+        while delete <= "" or int(delete) > index:
+            print("That's not a valid index :(")
+            delete = input("Please input a valid index or 'return' if you would like to go back: ")
+        if delete.lower() == "return":
             continue
+        with open(file, 'r') as infile, open("temp.txt", 'w') as outfile:
+            i = 1
+            for line in infile:
+                if delete + "." not in line.strip('\n'):
+                    outfile.write("{}.".format(i) + line[2:])
+                    i += 1
+        os.replace('temp.txt', file)
+        print("\nSuccessfully deleted a record!")
 
     # allows the user to edit a previously recorded entry
     # elif entry == "edit":
@@ -64,5 +70,5 @@ while True:
 
     # exits the program
     elif command == "exit":
-        print("\nHave a great day today! 8)")
+        print("\nHave a great day today! 8)\n")
         exit()
